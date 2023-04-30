@@ -111,40 +111,33 @@ customElements.define("event-count", class extends HTMLElement {
 
         // ********************************************************************
         var intervalCounter = setInterval(() => {
-  
+            
             // ---------------------------------------------------------------- 
             var start = new Date();
             var future = new Date(this.getAttribute("event") || 2147483647e3);// Y2K38 date: "2038-1-19 3:14:7");
             future < start && ([start, future] = [future, start]); // if count UP swap dates
             var diff = future - start;
-            // var day = 864e5; // 864e5 * 365 = 31536e6
-            var timediff = { year: ~~(diff / 31536e6) };
-
             var leapYears = 0;
-            for (var year = start.getFullYear(); year < future.getFullYear(); year++)
-                ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+            for (var i = start.getFullYear(); i < future.getFullYear(); i++)
+                ((i % 4 == 0 && i % 100 != 0) || i % 400 == 0)
                     && (future < start ? leapYears-- : leapYears++);
 
-            //timediff.weeks = ~~((diff -= timediff.years * day * 7)/day);
-            timediff.day = ~~((diff -= timediff.year * 31536e6) / 864e5) + leapYears;
-            timediff.hour = ~~((diff -= (timediff.day - leapYears) * 864e5) / 36e5);
-            timediff.minute = ~~((diff -= timediff.hour * 36e5) / (6e4));
-            timediff.second = ~~((diff -= timediff.minute * 6e4) / 1e3);
-            // ---------------------------------------------------------------- 
-            if (countlabels.map(label =>
-            (
-                this.setAttribute(label, timediff[label]),
-                // update every counter in the DOM element this[label]
-                /*.map RETURN value: */ this[label].innerHTML = timediff[label]
+            var year = ~~(diff / 31536e6);
+            //weeks = ~~((diff -= years * day * 7)/day);
+            var day = ~~((diff -= year * 31536e6) / 864e5) + leapYears;
+            var hour = ~~((diff -= (day - leapYears) * 864e5) / 36e5);
+            var minute = ~~((diff -= hour * 36e5) / (6e4));
+            var second = ~~((diff -= minute * 6e4) / 1e3);
 
-                // OR minimal DOM updates; update only counters that are not 0 OR the same value as before
-                //(this["_" + label] == datedifference[label]) && (this[label].innerHTML = (this["_" + label] = datedifference[label]))
+            this.year && (this.year.innerHTML = year);
+            this.day && (this.day.innerHTML = day);
+            this.hour && (this.hour.innerHTML = hour);
+            this.minute && (this.minute.innerHTML = minute);
+            this.second && (this.second.innerHTML = second);
 
-            )).every(value => !value)) {
-                // counter is down to 0, stop interval timer
+            if (year + day + hour + minute + second == 0) {
                 clearInterval(intervalCounter);
-                this.dispatchEvent(new Event(this.id)); // dispatch event
-                //this.dispatchEvent(new CustomEvent("event-count", { bubbles: 1, composed: 1 })); // dispatch event
+                this.dispatchEvent(new Event(this.id))
             }
         }, 1e3);// ping every second
 
