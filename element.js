@@ -111,6 +111,7 @@ customElements.define("event-count", class extends HTMLElement {
 
         // ********************************************************************
         var intervalCounter = setInterval(() => {
+  
             // ---------------------------------------------------------------- 
             var start = new Date();
             var future = new Date(this.getAttribute("event") || 2147483647e3);// Y2K38 date: "2038-1-19 3:14:7");
