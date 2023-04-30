@@ -1,19 +1,17 @@
-// <event-count> custom element, displaying [years] [days] [hours] [minutes] [seconds] countdown to a date
+// <event-count> custom element, displaying [year] [day] [hour] [minute] [second] countdown to a date
 // counts UP for past dates
-// attributes: date, event, count, noyears, nodays, nohours, nominutes, noseconds, locale
+// attributes: date, count, noyear, noday, nohour, nominute, nosecond, locale
 // date:    date to count down to, default Y2K38 Epochalypse date Counts UP for past dates
 // event:   name of event, default "Y2K38 Epochalypse" OR all HTML specified in lightDOM!
-// count:   comma separated list of labels to show, default "years,days,hours,minutes,seconds"
-// noyears, nodays, nohours, nominutes, noseconds: hide labels, default show all labels
-// locale:  language to use for labels, default "en" (English)
+// count:   comma separated list of labels to show, default "year,day,hour,minute,second"
+// noyear, noday, nohour, nominute, nosecond: hide labels, default show all labels
+// format:  language locale to use for labels, default "en" (English)
 
 customElements.define("event-count", class extends HTMLElement {
-
-    // ********************************************************************
     connectedCallback() {
         // naming all my variables VAR, they are slightly faster and minify well because CSS has a "var" keyword too
-        // set count labels any of ["years", "days", "hours", "minutes", "seconds"]
-        // and filter away user defined "noyears" ... "noseconds" attributes
+        // set count labels any of ["year", "day", "hour", "minute", "second"]
+        // and filter away user defined "noyear" ... "nosecond" attributes
         var countlabels = (this.getAttribute("count") || "year,day,hour,minute,second")
             .split(",")
             .filter(label => !this.hasAttribute("no" + label));
@@ -81,13 +79,13 @@ customElements.define("event-count", class extends HTMLElement {
                 //innerHTML: "<slot>" + (this.getAttribute("event") || "Y2K38 Epochalypse") + "</slot>",
                 // using append creates a 3 bytes smaller GZip file
                 append: [
-                    element({ create: "slot", innerHTML: this.getAttribute("event") || "Y2K38 Epochalypse" })
+                    element({ create: "slot", innerHTML: "Y2K38 Epochalypse" })
                 ]
             }),
             // --------------------------------------------------------------------
             element({
                 id: "count",
-                append: countlabels.map(label => element({ // = "years", "days", "hours", "minutes", "seconds"
+                append: countlabels.map(label => element({ // = "year", "day", "hour", "minute", "second"
                     id: label + "count",
                     append: [
                         element({
@@ -104,20 +102,18 @@ customElements.define("event-count", class extends HTMLElement {
                                     //{ numeric: "auto" }
                                 ).formatToParts(
                                     2, // 2 for plural, 1 for singular
-                                    label // label in "years,days,hours,minutes,seconds"
+                                    label // label in "year,day,hour,minute,second"
                                 )[2] // get time label name in locale as Object
                                     .value // get time name in locale as String)
                         })]
                 }))
             }))// shadowDOM created
 
-        // ----------------------------------------------------------------
-        // main interval timer
-        // Hey! Its JavaScript! Reusing count variable, so we don't have to declare a new one! Now for a timer function
+        // ********************************************************************
         var intervalCounter = setInterval(() => {
             // ---------------------------------------------------------------- 
             var start = new Date();
-            var future = new Date(this.getAttribute("date") || 2147483647e3);// Y2K38 date: "2038-1-19 3:14:7");
+            var future = new Date(this.getAttribute("event") || 2147483647e3);// Y2K38 date: "2038-1-19 3:14:7");
             future < start && ([start, future] = [future, start]); // if count UP swap dates
             var diff = future - start;
             // var day = 864e5; // 864e5 * 365 = 31536e6
