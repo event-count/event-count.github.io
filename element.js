@@ -75,10 +75,10 @@ customElements.define("event-count", class extends HTMLElement {
                     attr_CSSprop("count", "background", "#080") + // green
                     "}" +
                     // countdown labels
-                    "[part*='label']{" +
-                    attr_CSSprop("label", "padding", "0 1rem") +
-                    attr_CSSprop("label", "font", "1rem arial") +
-                    attr_CSSprop("label", "text-transform", "uppercase") +
+                    "[part*='text']{" +
+                    attr_CSSprop("text", "padding", "0 1rem") +
+                    attr_CSSprop("text", "font", "1rem arial") +
+                    attr_CSSprop("text", "text-transform", "uppercase") +
                     "}"
             }),
             // --------------------------------------------------------------------
@@ -86,9 +86,7 @@ customElements.define("event-count", class extends HTMLElement {
                 id: "event",
                 //innerHTML: "<slot>" + (this.getAttribute("event") || "Y2K38 Epochalypse") + "</slot>",
                 // using append creates a 3 bytes smaller GZip file
-                append: [
-                    element({ create: "slot", innerHTML: "Y2K38 Epochalypse" })
-                ]
+                append: [element({ create: "slot", innerHTML: "Y2K38 Epochalypse" })]
             }),
             // --------------------------------------------------------------------
             element({
@@ -101,7 +99,7 @@ customElements.define("event-count", class extends HTMLElement {
                             //, innerHTML: "#" // saving some bytes, after a second the value will be set
                         }),
                         element({
-                            id: label + "label",
+                            id: label + "text",
                             innerHTML:
                                 // --------------------------------------------------------------------
                                 // get proper locale_labels for all count labels
