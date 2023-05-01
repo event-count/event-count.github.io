@@ -10,10 +10,18 @@
 customElements.define("event-count", class extends HTMLElement {
     connectedCallback() {
         // naming all my variables VAR, they are slightly faster and minify well because CSS has a "var" keyword too
+        var event = this.getAttribute("event") || 2147483647e3;// Y2K38 date: "2038-1-19 3:14:7");
+        var count = this.getAttribute("count") || "year,day,hour,minute,second";
+        if (typeof event == "string" && event.includes(":")) {
+            var [hour, minute, second] = event.split(":");
+            event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3);
+            count = "hour,minute,second";
+        }
+        count = count || this.getAttribute("count") || "year,day,hour,minute,second";
+
         // set count labels any of ["year", "day", "hour", "minute", "second"]
         // and filter away user defined "noyear" ... "nosecond" attributes
-        var countlabels = (this.getAttribute("count") || "year,day,hour,minute,second")
-            .split(",")
+        var labels = count.split(",")
             .filter(label => !this.hasAttribute("no" + label));
 
         // ********************************************************************
@@ -60,7 +68,7 @@ customElements.define("event-count", class extends HTMLElement {
                     attr_CSSprop("event", "background", "#fc0") + // gold
                     "}" +
                     // countdown counters
-                    "#count{display:grid;grid:1fr/repeat(" + countlabels.length + ",1fr);" +
+                    "#count{display:grid;grid:1fr/repeat(" + labels.length + ",1fr);" +
                     attr_CSSprop("count", "color", "#fc0") + // gold
                     attr_CSSprop("count", "font", "2rem arial") +
                     attr_CSSprop("count", "text-align", "center") +
@@ -85,7 +93,7 @@ customElements.define("event-count", class extends HTMLElement {
             // --------------------------------------------------------------------
             element({
                 id: "count",
-                append: countlabels.map(label => element({ // = "year", "day", "hour", "minute", "second"
+                append: labels.map(label => element({ // = "year", "day", "hour", "minute", "second"
                     id: label + "count",
                     append: [
                         element({
@@ -113,11 +121,11 @@ customElements.define("event-count", class extends HTMLElement {
         var intervalCounter = setInterval(() => {
             // ---------------------------------------------------------------- 
             var start = new Date();
-            var future = new Date(this.getAttribute("event") || 2147483647e3);// Y2K38 date: "2038-1-19 3:14:7");
+            var future = new Date(event);
             future < start && ([start, future] = [future, start]); // if count UP swap dates
             var diff = future - start;
             // var day = 864e5; // 864e5 * 365 = 31536e6
-            var timediff = { year: ~~(diff / 31536e6) };
+            var time = { year: ~~(diff / 31536e6) };
 
             var leapYears = 0;
             for (var year = start.getFullYear(); year < future.getFullYear(); year++)
@@ -125,15 +133,15 @@ customElements.define("event-count", class extends HTMLElement {
                     && (future < start ? leapYears-- : leapYears++);
 
             //timediff.weeks = ~~((diff -= timediff.years * day * 7)/day);
-            timediff.day = ~~((diff -= timediff.year * 31536e6) / 864e5) + leapYears;
-            timediff.hour = ~~((diff -= (timediff.day - leapYears) * 864e5) / 36e5);
-            timediff.minute = ~~((diff -= timediff.hour * 36e5) / (6e4));
-            timediff.second = ~~((diff -= timediff.minute * 6e4) / 1e3);
+            time.day = ~~((diff -= time.year * 31536e6) / 864e5) + leapYears;
+            time.hour = ~~((diff -= (time.day - leapYears) * 864e5) / 36e5);
+            time.minute = ~~((diff -= time.hour * 36e5) / (6e4));
+            time.second = ~~((diff -= time.minute * 6e4) / 1e3);
             // ---------------------------------------------------------------- 
-            if (countlabels.map(label => (
-                this.setAttribute(label, timediff[label]),
+            if (labels.map(label => (
+                this.setAttribute(label, time[label]),
                 // update every counter in the DOM element this[label]
-                /*.map RETURN value: */ this[label].innerHTML = timediff[label]
+                /*.map RETURN value: */ this[label].innerHTML = time[label]
 
                 // OR minimal DOM updates; update only counters that are not 0 OR the same value as before
                 //(this["_" + label] == timediff[label]) && (this[label].innerHTML = (this["_" + label] = timediff[label]))

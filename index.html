@@ -140,7 +140,11 @@
     <main>
         <h1>Use the Web Component in HTML code:</h1>
         <section id="countdown">
-            <script>document.write(`<event-count format="nl" event="${new Date(Date() - 20)}">10 seconds</event-count>`)</script>
+            <script>
+                let d = new Date((new Date()/1) + 5e3);
+                d="2:1:10";
+                console.log(d);
+                document.write(`<event-count format="nl" event="${d}">10 seconds</event-count>`)</script>
         </section>
         <section id="default">
             <h2>Count down to the default future date</h2>
