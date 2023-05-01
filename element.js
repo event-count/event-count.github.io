@@ -11,13 +11,13 @@ customElements.define("event-count", class extends HTMLElement {
     connectedCallback() {
         // naming all my variables VAR, they are slightly faster and minify well because CSS has a "var" keyword too
         var event = this.getAttribute("event") || 2147483647e3;// Y2K38 date: "2038-1-19 3:14:7");
-        var count;
-        if (typeof event == "string" && event.includes(":")) {
-            var [hour, minute, second] = event.split(":");
-            event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3);
-            count = "hour,minute,second";
-        }
-        count = count || this.getAttribute("count") || "year,day,hour,minute,second";
+        var hour, minute, second,
+            count =
+                (this.getAttribute("time")) ? (
+                    [hour, minute, second] = this.getAttribute("time").split(":"),
+                    event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3),
+                    "hour,minute,second"
+                ) : (this.getAttribute("count") || "year,day,hour,minute,second");
 
         // set count labels any of ["year", "day", "hour", "minute", "second"]
         // and filter away user defined "noyear" ... "nosecond" attributes
