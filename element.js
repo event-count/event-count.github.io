@@ -6,21 +6,23 @@
 // count:   comma separated list of labels to show, default "year,day,hour,minute,second"
 // noyear, noday, nohour, nominute, nosecond: hide labels, default show all labels
 // format:  language locale to use for labels, default "en" (English)
+// time:    time count down from HH:MM:SS
 
 customElements.define("event-count", class extends HTMLElement {
     connectedCallback() {
+        // 'var' is faster and minifies better than 'let' or 'const'
         var event = this.getAttribute("event") || 2147483647e3;// Y2K38 date: "2038-1-19 3:14:7");
-        var hour, minute, second,
-            count = (this.getAttribute("time")) ? (
-                [hour, minute, second] = this.getAttribute("time").split(":"),
-                event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3),
-                "hour,minute,second"
-            ) : (this.getAttribute("count") || "year,day,hour,minute,second");
 
-        // set count labels any of ["year", "day", "hour", "minute", "second"]
-        // and filter away user defined "noyear" ... "nosecond" attributes
-        var labels = count.split(",")
-            .filter(label => !this.hasAttribute("no" + label));
+        var hour, minute, second;
+        var labels = (
+            (this.getAttribute("hms"))
+                ? (
+                    [hour, minute, second] = this.getAttribute("hms").split(":"),
+                    event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3),
+                    "hour,minute,second"
+                )
+                : (this.getAttribute("count") || "year,day,hour,minute,second")
+        ).split(",");
 
         // ********************************************************************
         // generic create DOM element with all content and properties
@@ -82,9 +84,12 @@ customElements.define("event-count", class extends HTMLElement {
             // --------------------------------------------------------------------
             element({
                 id: "event",
-                //innerHTML: "<slot>" + (this.getAttribute("event") || "Y2K38 Epochalypse") + "</slot>",
+                // innerHTML: "<slot>" + (this.getAttribute("event") || "Y2K38 Epochalypse") + "</slot>",
                 // using append creates a 3 bytes smaller GZip file
-                append: [element({ create: "slot", innerHTML: "Y2K38 Epochalypse" })]
+                append: [
+                    // fill with default empty <slot> content
+                    element({ create: "slot", innerHTML: "Y2K38" })
+                ]
             }),
             // --------------------------------------------------------------------
             element({
