@@ -75,7 +75,7 @@ customElements.define("event-count", class extends HTMLElement {
                     attr_CSSprop("count", "background", "#080") + // green
                     "}" +
                     // countdown labels
-                    "[part*='text']{" +
+                    "[part*=text]{" +
                     attr_CSSprop("text", "padding", "0 1rem") +
                     attr_CSSprop("text", "font", "1rem arial") +
                     attr_CSSprop("text", "text-transform", "uppercase") +
