@@ -8,33 +8,24 @@
 // format:  language locale to use for labels, default "en" (English)
 
 customElements.define("event-count", class extends HTMLElement {
-    connectedCallback(
-        // declaring all variables as arguments, so we don't need var,let,const statements
-        event = this.getAttribute("event") || 2147483647e3,// Y2K38 date: "2038-1-19 3:14:7")
-        count,
-        labels,
-        element,
-        attr_CSSprop,
-        intervalCounter
-    ) {
-        if (typeof event == "string" && event.includes(":")) {
-            // process event="HH:MM:SS"
-            // use 'var', they are slightly faster and minify well because CSS has a "var" keyword too
-            var [hour, minute, second] = event.split(":");
-            event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3);
-            count = "hour,minute,second";
-        }
-        count = count || this.getAttribute("count") || "year,day,hour,minute,second";
+    connectedCallback() {
+        var event = this.getAttribute("event") || 2147483647e3;// Y2K38 date: "2038-1-19 3:14:7");
+        var hour, minute, second,
+            count = (this.getAttribute("time")) ? (
+                [hour, minute, second] = this.getAttribute("time").split(":"),
+                event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3),
+                "hour,minute,second"
+            ) : (this.getAttribute("count") || "year,day,hour,minute,second");
 
         // set count labels any of ["year", "day", "hour", "minute", "second"]
         // and filter away user defined "noyear" ... "nosecond" attributes
-        labels = count.split(",")
+        var labels = count.split(",")
             .filter(label => !this.hasAttribute("no" + label));
 
         // ********************************************************************
         // generic create DOM element with all content and properties
         // this[id] notation optimized for use in this Custom Element
-        element = ({
+        var element = ({
             create = "div", // default element is a <div>
             id,// 
             append = [],// append array of child elements 
@@ -52,7 +43,7 @@ customElements.define("event-count", class extends HTMLElement {
         );
         // ********************************************************************
         // generic function return CSS selector with attribute value OR CSS property OR default value
-        attr_CSSprop = (prefix, name, value) =>
+        var attr_CSSprop = (prefix, name, value) =>
             // to read value from attribues 
             name + ":" + (this.getAttribute(prefix + "-" + name)
                 || // OR CSS property OR default value
@@ -123,7 +114,7 @@ customElements.define("event-count", class extends HTMLElement {
             }))// shadowDOM created
 
         // ********************************************************************
-        intervalCounter = setInterval(() => {
+        var intervalCounter = setInterval(() => {
             // ---------------------------------------------------------------- 
             var start = new Date();
             var future = new Date(event);
