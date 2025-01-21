@@ -9,25 +9,60 @@
 // time:    time count down from HH:MM:SS
 
 customElements.define("event-count", class extends HTMLElement {
+    // static get observedAttributes() { return ["date", "count", "noyear", "noday", "nohour", "nominute", "nosecond", "locale", "time"]; }
+    // attributeChangedCallback() {
+    //     this.render();
+    // }
     connectedCallback() {
-        // 'var' is faster and minifies better than 'let' or 'const'
-        var event = this.getAttribute("event") || 2147483647e3;// Y2K38 date: "2038-1-19 3:14:7");
-
-        var hour, minute, second;
-        var labels = (
-            (this.getAttribute("hms"))
-                ? (
-                    [hour, minute, second] = this.getAttribute("hms").split(":"),
-                    event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3),
-                    "hour,minute,second"
-                )
-                : (this.getAttribute("count") || "year,day,hour,minute,second")
-        ).split(",");
+        this.render();
+    }
+    render() {
+        // ====================================================================
+        let event;
+        let labels;
+        // ====================================================================
+        const urlParams = new URLSearchParams(window.location.search);
+        if (this.getAttribute("event") == "url") {
+            if (urlParams.get('event')) event = urlParams.get('event');
+            if (urlParams.get('labels')) labels = urlParams.get('labels');
+            if (urlParams.get('title')) {
+                setTimeout(() => {
+                    this.innerHTML = urlParams.get('title');
+                }, 1);
+            }
+        } else {
+            event = this.getAttribute("event") || 2147483647e3;// default Y2K38 date: "2038-1-19 3:14:7"
+        }
+        if (event == "newyear") {
+            event = new Date(new Date().getFullYear() + 1, 0, 1);
+        } else if (event == "danny") {
+            event = "1969/1/21";
+        } else if (event == "48") {
+            event = "2029/1/20";
+            this.setAttribute("count", "year,day,hour,minute,second");
+            setTimeout(() => {
+                this.innerHTML = `<flagmeister-text word="48" iso="us,us" style="display:inline-block;text-align:center"></flagmeister-text>`;
+            }, 1);
+        }
+        // ====================================================================
+        let hour, minute, second;
+        // ====================================================================
+        if (!labels) {
+            if (this.getAttribute("hms")) {
+                [hour, minute, second] = this.getAttribute("hms").split(":");
+                event = new Date((new Date() / 1) + hour * 3600e3 + minute * 60e3 + second * 1e3);
+                labels = "hour,minute,second";
+            } else {
+                labels = (this.getAttribute("count") || "year,day,hour,minute,second");
+            }
+        }
+        if (labels == "*") labels = "year,day,hour,minute,second";
+        labels = labels.split(",");
 
         // ********************************************************************
         // generic create DOM element with all content and properties
         // this[id] notation optimized for use in this Custom Element
-        var element = ({
+        let createElement = ({
             create = "div", // default element is a <div>
             id,// 
             append = [],// append array of child elements 
@@ -45,7 +80,7 @@ customElements.define("event-count", class extends HTMLElement {
         );
         // ********************************************************************
         // generic function return CSS selector with attribute value OR CSS property OR default value
-        var attr_CSSprop = (prefix, name, value) =>
+        let attr_CSSprop = (prefix, name, value) =>
             // to read value from attribues 
             name + ":" + (this.getAttribute(prefix + "-" + name)
                 || // OR CSS property OR default value
@@ -53,11 +88,11 @@ customElements.define("event-count", class extends HTMLElement {
 
         // ********************************************************************
         // create full shadowDOM
-        this.attachShadow({ mode: "open" }).append(
+        (this.shadowRoot || this.attachShadow({ mode: "open" })).append(
             // ----------------------------------------------------------------
-            element({
+            createElement({
                 create: "style",
-                //id: "style", // prevent from setting default "undefined" string value
+                id: "style", // unused; prevent from setting default "undefined" string value
                 innerHTML: ":host{display:inline-block}" +
                     // eventname
                     "#event{" +
@@ -82,26 +117,27 @@ customElements.define("event-count", class extends HTMLElement {
                     "}"
             }),
             // --------------------------------------------------------------------
-            element({
+            createElement({
                 id: "event",
-                // innerHTML: "<slot>" + (this.getAttribute("event") || "Y2K38 Epochalypse") + "</slot>",
-                // using append creates a 3 bytes smaller GZip file
                 append: [
                     // fill with default empty <slot> content
-                    element({ create: "slot", innerHTML: "Y2K38" })
+                    createElement({
+                        //id: "slot",// do not set, creates slot reference in <event-count-example>
+                        create: "slot", innerHTML: "Y2K38"
+                    })
                 ]
             }),
             // --------------------------------------------------------------------
-            element({
+            createElement({
                 id: "count",
-                append: labels.map(label => element({ // = "year", "day", "hour", "minute", "second"
+                append: labels.map(label => createElement({ // = "year", "day", "hour", "minute", "second"
                     id: label + "count",
                     append: [
-                        element({
+                        createElement({
                             id: label
                             //, innerHTML: "#" // saving some bytes, after a second the value will be set
                         }),
-                        element({
+                        createElement({
                             id: label + "text",
                             innerHTML:
                                 // --------------------------------------------------------------------
@@ -119,29 +155,32 @@ customElements.define("event-count", class extends HTMLElement {
             }))// shadowDOM created
 
         // ********************************************************************
-        var intervalCounter = setInterval(() => {
-            // ---------------------------------------------------------------- 
-            var start = new Date();
-            var future = new Date(event);
-            future < start && ([start, future] = [future, start]); // if count UP swap dates
-            var diff = future - start;
-            // var day = 864e5; // 864e5 * 365 = 31536e6
-            var time = { year: ~~(diff / 31536e6) };
-
-            var leapYears = 0;
-            for (var year = start.getFullYear(); year < future.getFullYear(); year++)
-                ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
-                    && (future < start ? leapYears-- : leapYears++);
-
-            //timediff.weeks = ~~((diff -= timediff.years * day * 7)/day);
-            time.day = ~~((diff -= time.year * 31536e6) / 864e5) + leapYears;
-            time.hour = ~~((diff -= (time.day - leapYears) * 864e5) / 36e5);
-            time.minute = ~~((diff -= time.hour * 36e5) / (6e4));
-            time.second = ~~((diff -= time.minute * 6e4) / 1e3);
-            // ---------------------------------------------------------------- 
+        let intervalCounter = setInterval(() => {
+            // === helper function ===
+            const leapYears = (days, year, years = 0) => {
+                while (days >= 365) {
+                    days -= (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)) ? 366 : 365;
+                    years++;
+                    year++;
+                }
+                return years;
+            }
+            // === main function ===
+            let startDate = new Date(), currentDate = new Date(event);
+            // swap dates if countdown is in the past
+            if (currentDate < startDate) [startDate, currentDate] = [currentDate, startDate];
+            let seconds = Math.floor((currentDate - startDate) / 1000);
+            let time = {
+                year: leapYears(/* days */Math.floor(seconds / 86400), /* year */startDate.getFullYear()),
+                day: Math.floor(seconds / 86400 % 365.25), // leapYear correction .25
+                hour: Math.floor(seconds / 3600 % 24),
+                minute: Math.floor(seconds / 60 % 60),
+                second: seconds % 60
+            };
+        // ----------------------------------------------------------------
+            // update every counter in the DOM element this[label]
             if (labels.map(label => (
                 this.setAttribute(label, time[label]),
-                // update every counter in the DOM element this[label]
                 /*.map RETURN value: */ this[label].innerHTML = time[label]
 
                 // OR minimal DOM updates; update only counters that are not 0 OR the same value as before

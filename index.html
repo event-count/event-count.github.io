@@ -4,12 +4,13 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Count down to a future date">
+    <meta name="description" content="Count down to a future event date">
     <meta name="author" content="event-Counter">
     <meta name="keywords" content="date, counter, countdown, count down, count, down, future, event, web component">
     <meta name="theme-color" content="#000000">
+<script src="https://flagmeister.github.io/elements.flagmeister.min.js"></script>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'>
-     <path d='M55 5a5 5 90 015-5h40a5 5 90 010 10h-10v11a70 70 90 0135 123l8 8a5 5 90 01-7 7l-9-9
+    <path d='M55 5a5 5 90 015-5h40a5 5 90 010 10h-10v11a70 70 90 0135 123l8 8a5 5 90 01-7 7l-9-9   
       a70 70 90 01-37 11a70 70 90 01-37-11l-9 9a5 5 90 01-7-7l8-8a70 70 90 0135-123v-11h-10
       a5 5 90 01-5-5z
       m-46 49a25 25 90 1135-35a80 80 90 00-35 35z
@@ -19,10 +20,20 @@
     <title>event-count</title>
     <style>
         body {
-            font: 16px arial;
             --event-count-font: 2.4rem;
+        }
+
+        event-count-html {
+            display: block;
+            font-size: 1.7em;
+            margin-bottom: 1em;
+        }
+    </style>
+    <style>
+        body {
+            font: 16px arial;
             background: beige;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
@@ -37,12 +48,6 @@
         h2 {
             padding-left: .2em;
             background: goldenrod;
-        }
-
-        event-count-html {
-            display: block;
-            font-size: 1.7em;
-            margin-bottom: 1em;
         }
 
         article {
@@ -72,8 +77,11 @@
             font-size: 140%;
         }
     </style>
+    <!-- <event-count> Web Component -->
     <script src="./element.js"></script>
+    <!-- <file-size> Web Component - display GZIP size and GZIP analysis -->
     <script src="https://file-size.github.io/element.js"></script>
+
     <script>
         customElements.define("header-and-footer", class extends HTMLElement {
             connectedCallback() {
@@ -145,54 +153,56 @@
 </head>
 
 <body>
-    <header>
-        <header-and-footer></header-and-footer>
-    </header>
-    <main>
-        <h1>Use the &lt;event-count> Web Component in HTML code:</h1>
+    <!-- <a href="." style="position:fixed;bottom:10px;right:10px;font:21px arial;zoom:1">documentation</a> -->
+    <div style="text-align: center;zoom:2;--flagmeisterletterheight: 15vh">
+        <event-count event="48"></event-count>
+    </div>
+    <article id="documentation">
+        <header>
+            <header-and-footer></header-and-footer>
+        </header>
+        <main>
+            <h1>Use the &lt;event-count> Web Component in HTML code:</h1>
+            <h2>event attribute Date notation: event="YYYY-MM-DD"</h2>
 
-        <event-count-example id="default" title="Count down to the default future date"></event-count-example>
+            <event-count-example id="default"
+                title="Count down to the default future event date: january 19th 2038 "></event-count-example>
 
-        <event-count-example id="newyear" title="set custom date and hide years and seconds counter" 
-            count="day,hour,minute" event="2024-1-1">🎆 New
-            Year! 🍾</event-count-example>
+            <event-count-example id="newyear" title="set custom date and hide years and seconds counter"
+                count="day,hour,minute" event="newyear">🎆 New
+                Year! 🍾</event-count-example>
 
-        <event-count-example id="newyeardaysNO" title="set custom date, only display days counter and format font"
-            count="day" event="2024-1-1" count-font="4rem Arial">🎆 New Year!
-            🍾
-        </event-count-example>
+            <event-count-example calcnewyear id="newyeardays"
+                title="set custom event date, only display days counter and format font" count="day" event="newyear"
+                count-font="4rem Verdana">🎆 New Year!
+                🍾</event-count-example>
 
-        <event-count-example id="newyeardays" title="set custom date, only display days counter and format font"
-            count="day" event="2024-1-1" count-font="4rem Verdana">🎆 New Year!
-            🍾</event-count-example>
+            <event-count-example id="since" title="Count up from a past event date" event="1969-1-21" count="year,day">Danny's age
+            </event-count-example>
 
-        <event-count-example id="since" title="Count up from a past date" event="1969-1-21"
-            count="year,day,hour,second">Danny's age
-        </event-count-example>
+            <event-count-example id="languageES" title="Set the labels to any language" format="es">Y2K38 in
+                Spanish
+            </event-count-example>
 
-        <event-count-example id="languageES" title="Set the labels to any language" format="es">Y2K38 in
-            Spanish
-        </event-count-example>
+            <event-count-example id="languageNL" count="year,day" title="Set the labels to any language" format="nl">Y2K38
+                in Dutch
+            </event-count-example>
 
-        <event-count-example id="languageNL" count="year,day" title="Set the labels to any language" format="nl">Y2K38
-            in Dutch
-        </event-count-example>
-
-        <section id="CSS">
-            <h2>Set styles with CSS properties</h2>
-            <style>
-                #CSS {
-                    --event-count-event-background: red;
-                    --event-count-event-color: white;
-                    --event-count-count-background: teal;
-                    --event-count-count-font: 2.5rem Arial;
-                    --event-count-count-color: gold;
-                    --event-count-text-font: .7rem Arial;
-                }
-            </style>
-            <pre>
+            <section id="CSS">
+                <h2>Set styles with CSS properties</h2>
+                <style>
+                    #CSS {
+                        --event-count-event-background: red;
+                        --event-count-event-color: white;
+                        --event-count-count-background: teal;
+                        --event-count-count-font: 2.5rem Arial;
+                        --event-count-count-color: gold;
+                        --event-count-text-font: .7rem Arial;
+                    }
+                </style>
+                <pre>
 &lt;style>
-    --event-count-event-background: red;
+--event-count-event-background: red;
     --event-count-event-color: white;
     --event-count-count-background: teal;
     --event-count-count-font: 2.5rem Arial;
@@ -200,69 +210,71 @@
     --event-count-text-font: .7rem Arial;
 &lt;/style>
 </pre>
-            <event-count></event-count>
-        </section>
+                <event-count></event-count>
+                </section>
 
-        <event-count-example id="CSS2" title="Set styles with CSS properties" count="year,day" format="nl"></event-count-example>
+            <event-count-example id="CSS2" title="Set styles with CSS properties" count="year,day"
+                format="nl"></event-count-example>
 
-        <event-count-example id="attributes" title="Set styles with attributes (overrule global CSS properties)"
-            count-background="blue" count-color="gold"></event-count-example>
+            <event-count-example id="attributes" title="Set styles with attributes (overrule global CSS properties)"
+                count-background="blue" count-color="gold"></event-count-example>
 
-        <section id="parts">
-            <h2>Style shadowDOM with <code>::part(...)</code></h2>
-            <event-count-html></event-count-html>
-            <img src="https://i.imgur.com/43FEtpm.png" />
-            <style>
-                #parts event-count::part(event) {
-                    background: gold;
-                    color: blue;
-                }
+            <section id="parts">
+                <h2>Style shadowDOM with <code>::part(...)</code></h2>
+                <event-count-html></event-count-html>
+                ::part(X) can only style Nodes with attribute part=X inside shadowDOM
+                <br>
+                <img src="html_code.png" />
+                <style>
+                    #parts event-count::part(event) {
+                        background: gold;
+                        color: blue;
+                    }
 
-                #parts event-count::part(count) {
-                    text-shadow: 2px 2px 2px black;
-                }
+                    #parts event-count::part(count) {
+                        text-shadow: 2px 2px 2px black;
+                    }
 
-                #parts event-count::part(year) {
-                    color: beige;
-                }
-            </style>
-            <pre>
+                    #parts event-count::part(year) {
+                        color: beige;
+                    }
+                </style>
+                <pre>
 &lt;style>
-    event-count::part(event) {
-        background: gold;
-        color: blue;
-    }
-    event-count::part(count) {
-        text-shadow: 2px 2px 2px black;
-    }
-    event-count::part(year) {
-        color: beige;
+event-count::part(event) {
+background: gold;
+color: blue;
+}
+event-count::part(count) {
+text-shadow: 2px 2px 2px black;
+}
+event-count::part(year) {
+color: beige;
     }
 &lt;/style>
-            </pre>
-            <event-count>styled with ::part</event-count>
-        </section>
+</pre>
+<event-count>styled with ::part</event-count>
+</section>
 
-        <event-count-example id="countdown" title="Countdown Timer HH:MM:SS" hms="11:11:11">
-        </event-count-example>
+            <event-count-example id="countdown" title="Countdown Timer HH:MM:SS" hms="11:11:11">
+            </event-count-example>
 
-    </main>
-    <br>
-    <br>
-    <br>
-    <br>
-    <section id="filesize">
-        <h1><code class="title">&lt;event-count></code> minified GZIP Filesize is <i>small</i></h1>
-        <article>
-            <p>Did I get the GZipped size under 1 KiloByte?</p>
-            <file-size gz src="https://event-count.github.io/element.min.js"></file-size>
-        </article>
-    </section>
+        </main>
+        <br>
+        <br>
+        <br>
+        <br>
+        <section id="filesize">
+            <h1><code class="title">&lt;event-count></code> minified GZIP Filesize is <i>small</i></h1>
+            <article>
+                <!-- <file-size gz src="https://event-count.github.io/element.min.js"></file-size> -->
+                </article>
+                </section>
 
-    <footer>
-        <header-and-footer></header-and-footer>
-    </footer>
-
+        <footer>
+            <header-and-footer></header-and-footer>
+        </footer>
+    </article>
 </body>
 
 </html>
